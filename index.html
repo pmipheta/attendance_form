@@ -140,7 +140,6 @@ footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
 
       <div class="tbody" id="list"></div>
     </div>
-    <footer>Data saved in your browser. CSV opens in Excel.</footer>
   </div>
 
 </div>
@@ -181,7 +180,7 @@ async function add(){
 
 // Load guests
 async function load(){
-  const res = await fetch("LocalStoragehttps://sheetdb.io/api/v1/whjha6877sxp0");
+  const res = await fetch("https://sheetdb.io/api/v1/whjha6877sxp0");
   guests = await res.json();
   render();
 }
