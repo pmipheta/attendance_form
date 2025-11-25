@@ -65,7 +65,6 @@ select:focus, input:focus{
 .pill{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:600;display:inline-block;text-align:center;}
 .pill.yes{background:rgba(16,185,129,0.12);color:var(--success)}
 .pill.no{background:rgba(239,68,68,0.12);color:var(--danger)}
-.pill.pending{background:rgba(255,255,255,0.05);color:var(--muted)}
 footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
 @media (max-width:900px){.grid{grid-template-columns:1fr}.thead,.row-item{grid-template-columns:1fr 100px 100px}}
 </style>
@@ -99,7 +98,6 @@ footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
 
     <label>Are you coming?</label>
     <select id="status">
-      <option value="pending">Choose...</option>
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select>
@@ -129,7 +127,6 @@ footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
         <div class="search">
           <input id="search" placeholder="Search name or year...">
         </div>
-        <button id="exportBtn" class="btn ghost">CSV</button>
       </div>
 
       <div class="thead">
@@ -154,7 +151,6 @@ const els={
   submitBtn: document.getElementById('submitBtn'),
   list: document.getElementById('list'),
   search: document.getElementById('search'),
-  exportBtn: document.getElementById('exportBtn'),
   total: document.getElementById('total'),
   yes: document.getElementById('yes'),
   no: document.getElementById('no')
@@ -174,7 +170,7 @@ async function add(){
     body: JSON.stringify({ data: guest })
   });
 
-  els.name.value=''; els.year.value=''; els.status.value='pending';
+  els.name.value=''; els.year.value=''; els.status.value='yes';
   load(); // reload all guests
 }
 
@@ -185,7 +181,7 @@ async function load(){
   render();
 }
 
-function statusPill(s){return s==='yes'?'<span class="pill yes">Yes</span>':s==='no'?'<span class="pill no">No</span>':'<span class="pill pending">Pending</span>'}
+function statusPill(s){return s==='yes'?'<span class="pill yes">Yes</span>':'<span class="pill no">No</span>'}
 function render(){
   const q = els.search.value.trim().toLowerCase();
   let filtered = guests.filter(g =>
@@ -212,29 +208,10 @@ function render(){
   els.no.textContent = guests.filter(g => g.Status === 'no').length;
 }
 
-// CSV export
-els.exportBtn.onclick = () => {
-  if(!guests.length){alert('No data');return;}
-  let rows=[['Name','Year','Status','Added']];
-  guests.forEach(g => rows.push([g.Name, g.Year, g.Status, g.Created]));
-  let csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  let blob = new Blob([csv], {type:'text/csv'});
-  let url = URL.createObjectURL(blob);
-  let a = document.createElement('a'); a.href = url; a.download = 'guests.csv'; a.click();
-  URL.revokeObjectURL(url);
-}
+els.submitBtn.onclick = add;
+els.search.oninput = render;
 
-els.submitBtn.onclick=add;
-els.search.oninput=render;
-els.exportBtn.onclick=()=>{
-  if(!guests.length){alert('No data');return;}
-  let rows=[['Name','Year','Status','Added']];
-  guests.forEach(g=>rows.push([g.name,g.year,g.status,g.created]));
-  let csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  let blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob);
-  let a=document.createElement('a');a.href=url;a.download='guests.csv';a.click();URL.revokeObjectURL(url);
-};
-load();render();
+load(); render();
 </script>
 </body>
 </html>
