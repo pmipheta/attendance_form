@@ -161,15 +161,31 @@ const els={
   no: document.getElementById('no')
 };
 function uid(){return'g_'+Math.random().toString(36).slice(2,9);}
-function load(){guests=JSON.parse(localStorage.getItem('guest_v1')||'[]');}
-function save(){localStorage.setItem('guest_v1',JSON.stringify(guests));}
-function add(){
-  const n=els.name.value.trim(),y=els.year.value.trim(),s=els.status.value;
-  if(!n||!y){alert('Please enter name & year.');return;}
-  guests.unshift({id:uid(),name:n,year:y,status:s,created:new Date().toISOString()});
-  save();render();
-  els.name.value='';els.year.value='';els.status.value='pending';
+
+// Add guest
+async function add(){
+  const n = els.name.value.trim(), y = els.year.value.trim(), s = els.status.value;
+  if(!n || !y){ alert('Please enter name & year'); return; }
+
+  const guest = { Name: n, Year: y, Status: s, Created: new Date().toISOString() };
+
+  await fetch("https://sheetdb.io/api/v1/whjha6877sxp0", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: guest })
+  });
+
+  els.name.value=''; els.year.value=''; els.status.value='pending';
+  load(); // reload all guests
 }
+
+// Load guests
+async function load(){
+  const res = await fetch("LocalStoragehttps://sheetdb.io/api/v1/whjha6877sxp0");
+  guests = await res.json();
+  render();
+}
+
 function statusPill(s){return s==='yes'?'<span class="pill yes">Yes</span>':s==='no'?'<span class="pill no">No</span>':'<span class="pill pending">Pending</span>'}
 function render(){
   const q=els.search.value.trim().toLowerCase();
