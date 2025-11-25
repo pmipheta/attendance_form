@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RSVP Tracker</title>
+<style>
+:root{
+  --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#06b6d4;
+  --success:#16a34a; --danger:#ef4444; --glass: rgba(255,255,255,0.03);
+  --radius:12px; --gap:14px;
+  font-family:Inter,ui-sans-serif,system-ui;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:linear-gradient(180deg,rgba(6,6,10,1),rgba(15,23,36,1));
+  color:#e6eef6;font-size:14px;line-height:1.35;
+}
+.wrap{max-width:1100px;margin:28px auto;padding:20px}
+header{display:flex;gap:12px;align-items:center;margin-bottom:18px;}
+.logo{
+  width:56px;height:56px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#3b82f6);
+  display:flex;align-items:center;justify-content:center;
+}
+.logo svg{width:30px;height:30px;fill:white}
+h1{margin:0;font-size:20px}
+p.lead{margin:4px 0 0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:380px 1fr;gap:18px;}
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+  border-radius:var(--radius);padding:16px;
+}
+label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+input, select{
+  width:100%;padding:10px;border-radius:8px;
+  border:1px solid rgba(255,255,255,0.04);
+  background:#1e293b;color:white;margin-bottom:12px;
+  appearance:none;
+}
+select:focus, input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(6,182,212,0.25);
+}
+.btn{
+  display:inline-flex;gap:8px;align-items:center;
+  padding:10px 12px;font-weight:600;cursor:pointer;
+  border:0;border-radius:10px;
+  background:var(--accent);color:#042026;
+}
+.stats{display:flex;gap:8px;margin-top:10px}
+.stat{flex:1;background:var(--glass);padding:10px;border-radius:8px;text-align:center}
+.stat .num{font-size:18px;font-weight:700}
+.controls{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.search{flex:1;display:flex;align-items:center;gap:8px}
+.search input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);background:#1e293b;color:white}
+.thead{display:grid;grid-template-columns:1fr 120px 120px;gap:8px;padding:8px 10px;color:var(--muted);font-size:13px;}
+.tbody{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.row-item{display:grid;grid-template-columns:1fr 120px 120px;gap:8px;padding:10px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);}
+.meta{display:flex;gap:10px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#334155,#0ea5a3);display:flex;align-items:center;justify-content:center;font-weight:700;color:white;}
+.muted{color:var(--muted);font-size:13px}
+.pill{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:600;display:inline-block;text-align:center;}
+.pill.yes{background:rgba(16,185,129,0.12);color:var(--success)}
+.pill.no{background:rgba(239,68,68,0.12);color:var(--danger)}
+.pill.pending{background:rgba(255,255,255,0.05);color:var(--muted)}
+footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.thead,.row-item{grid-template-columns:1fr 100px 100px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M11 3h2v8h8v2h-8v8h-2v-8H3v-2h8V3z"/></svg>
+  </div>
+  <div>
+    <h1>Attendance</h1>
+  </div>
+</header>
+
+<div class="grid">
+  <!-- Form -->
+  <div class="card">
+    <label>Name</label>
+    <input id="name" placeholder="Full name">
+
+    <label>College Year</label>
+    <select id="year">
+      <option value="">Select year...</option>
+      <option>1st Year</option>
+      <option>2nd Year</option>
+      <option>3rd Year</option>
+      <option>4th Year</option>
+      <option>Other</option>
+    </select>
+
+    <label>Are you coming?</label>
+    <select id="status">
+      <option value="pending">Choose...</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <button class="btn" id="submitBtn">Submit</button>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="muted">Total</div>
+        <div id="total" class="num">0</div>
+      </div>
+      <div class="stat">
+        <div class="muted">Yes</div>
+        <div id="yes" class="num">0</div>
+      </div>
+      <div class="stat">
+        <div class="muted">No</div>
+        <div id="no" class="num">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div>
+    <div class="card" style="padding:12px">
+      <div class="controls">
+        <div class="search">
+          <input id="search" placeholder="Search name or year...">
+        </div>
+        <button id="exportBtn" class="btn ghost">CSV</button>
+      </div>
+
+      <div class="thead">
+        <div>Name & Year</div>
+        <div>Attendance</div>
+        <div>Added</div>
+      </div>
+
+      <div class="tbody" id="list"></div>
+    </div>
+    <footer>Data saved in your browser. CSV opens in Excel.</footer>
+  </div>
+
+</div>
+</div>
+
+<script>
+let guests=[];
+const els={
+  name: document.getElementById('name'),
+  year: document.getElementById('year'),
+  status: document.getElementById('status'),
+  submitBtn: document.getElementById('submitBtn'),
+  list: document.getElementById('list'),
+  search: document.getElementById('search'),
+  exportBtn: document.getElementById('exportBtn'),
+  total: document.getElementById('total'),
+  yes: document.getElementById('yes'),
+  no: document.getElementById('no')
+};
+function uid(){return'g_'+Math.random().toString(36).slice(2,9);}
+function load(){guests=JSON.parse(localStorage.getItem('guest_v1')||'[]');}
+function save(){localStorage.setItem('guest_v1',JSON.stringify(guests));}
+function add(){
+  const n=els.name.value.trim(),y=els.year.value.trim(),s=els.status.value;
+  if(!n||!y){alert('Please enter name & year.');return;}
+  guests.unshift({id:uid(),name:n,year:y,status:s,created:new Date().toISOString()});
+  save();render();
+  els.name.value='';els.year.value='';els.status.value='pending';
+}
+function statusPill(s){return s==='yes'?'<span class="pill yes">Yes</span>':s==='no'?'<span class="pill no">No</span>':'<span class="pill pending">Pending</span>'}
+function render(){
+  const q=els.search.value.trim().toLowerCase();
+  let filtered=guests.filter(g=>g.name.toLowerCase().includes(q)||g.year.toLowerCase().includes(q));
+  els.list.innerHTML='';
+  for(const g of filtered){
+    let row=document.createElement('div');
+    row.className='row-item';
+    row.innerHTML=`
+      <div class="meta">
+        <div class="avatar">${g.name.slice(0,1).toUpperCase()}</div>
+        <div><div style="font-weight:700">${g.name}</div><div class="muted">${g.year}</div></div>
+      </div>
+      <div>${statusPill(g.status)}</div>
+      <div class="muted">${new Date(g.created).toLocaleString()}</div>`;
+    els.list.appendChild(row);
+  }
+  els.total.textContent=guests.length;
+  els.yes.textContent=guests.filter(g=>g.status==='yes').length;
+  els.no.textContent=guests.filter(g=>g.status==='no').length;
+}
+els.submitBtn.onclick=add;
+els.search.oninput=render;
+els.exportBtn.onclick=()=>{
+  if(!guests.length){alert('No data');return;}
+  let rows=[['Name','Year','Status','Added']];
+  guests.forEach(g=>rows.push([g.name,g.year,g.status,g.created]));
+  let csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  let blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob);
+  let a=document.createElement('a');a.href=url;a.download='guests.csv';a.click();URL.revokeObjectURL(url);
+};
+load();render();
+</script>
+</body>
+</html>
