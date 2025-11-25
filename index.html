@@ -187,25 +187,43 @@ async function load(){
 
 function statusPill(s){return s==='yes'?'<span class="pill yes">Yes</span>':s==='no'?'<span class="pill no">No</span>':'<span class="pill pending">Pending</span>'}
 function render(){
-  const q=els.search.value.trim().toLowerCase();
-  let filtered=guests.filter(g=>g.name.toLowerCase().includes(q)||g.year.toLowerCase().includes(q));
-  els.list.innerHTML='';
+  const q = els.search.value.trim().toLowerCase();
+  let filtered = guests.filter(g =>
+    g.Name.toLowerCase().includes(q) ||
+    g.Year.toLowerCase().includes(q)
+  );
+
+  els.list.innerHTML = '';
   for(const g of filtered){
-    let row=document.createElement('div');
-    row.className='row-item';
-    row.innerHTML=`
+    let row = document.createElement('div');
+    row.className = 'row-item';
+    row.innerHTML = `
       <div class="meta">
-        <div class="avatar">${g.name.slice(0,1).toUpperCase()}</div>
-        <div><div style="font-weight:700">${g.name}</div><div class="muted">${g.year}</div></div>
+        <div class="avatar">${g.Name.slice(0,1).toUpperCase()}</div>
+        <div><div style="font-weight:700">${g.Name}</div><div class="muted">${g.Year}</div></div>
       </div>
-      <div>${statusPill(g.status)}</div>
-      <div class="muted">${new Date(g.created).toLocaleString()}</div>`;
+      <div>${statusPill(g.Status)}</div>
+      <div class="muted">${new Date(g.Created).toLocaleString()}</div>`;
     els.list.appendChild(row);
   }
-  els.total.textContent=guests.length;
-  els.yes.textContent=guests.filter(g=>g.status==='yes').length;
-  els.no.textContent=guests.filter(g=>g.status==='no').length;
+
+  els.total.textContent = guests.length;
+  els.yes.textContent = guests.filter(g => g.Status === 'yes').length;
+  els.no.textContent = guests.filter(g => g.Status === 'no').length;
 }
+
+// CSV export
+els.exportBtn.onclick = () => {
+  if(!guests.length){alert('No data');return;}
+  let rows=[['Name','Year','Status','Added']];
+  guests.forEach(g => rows.push([g.Name, g.Year, g.Status, g.Created]));
+  let csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  let blob = new Blob([csv], {type:'text/csv'});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a'); a.href = url; a.download = 'guests.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
 els.submitBtn.onclick=add;
 els.search.oninput=render;
 els.exportBtn.onclick=()=>{
